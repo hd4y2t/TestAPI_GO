@@ -15,7 +15,7 @@ import (
 
 func main() {
 	// refer https://github.com/go-sql-driver/mysql#dsn-data-source-name for details
-	dsn := "root:123456@tcp(127.0.0.1:3306)/api"
+	dsn := "root:123456@tcp(127.0.0.1:3306)/api?parseTime=true"
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal("koneksi db gagal")
@@ -23,6 +23,7 @@ func main() {
 	}
 
 	bookRepository := book.NewRepository(db)
+	// bookFileRepository := book.NewFileRepository()
 	bookService := book.NewService(bookRepository)
 	bookHendler := hendler.NewBookHendler(bookService)
 	// books, err := bookRepository.FindByID(2)
@@ -88,10 +89,15 @@ func main() {
 
 	router := gin.Default()
 	v1 := router.Group("/v1")
-	v1.GET("/", bookHendler.RootHandler)
-	v1.GET("/hello", bookHendler.HelloHandler)
-	v1.GET("/books/:id", bookHendler.GetBook)
+	// v1.GET("/", bookHendler.RootHandler)
+	// v1.GET("/hello", bookHendler.HelloHandler)
+	// v1.GET("/books/:id", bookHendler.GetBook)
+	v1.GET("/books", bookHendler.BookList)
 	v1.POST("/books", bookHendler.CreateBook)
+
+	v1.GET("/books/:id", bookHendler.GetBook)
+	v1.PUT("/books/:id", bookHendler.UpdateBook)
+	v1.DELETE("/books/:id", bookHendler.DeleteBook)
 
 	router.Run(":8081")
 
